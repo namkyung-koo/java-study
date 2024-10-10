@@ -16,5 +16,8 @@ _[섹션 6] 열거형 - ENUM_
 ### time
 _[섹션 7] 날짜와 시간_
 
-### nested
+### nested.nested, nested.inner
 _[섹션 8] 중첩 클래스, 내부 클래스1_
+
+### nested.local, nested.anonymous
+_[섹션 9] 중첩 클래스, 내부 클래스2_
