@@ -1,4 +1,4 @@
-## 제네릭
+## 제네릭 - Generic1
 대부분의 최신 프로그래밍 언어는 제네릭(Generic) 개념을 제공한다.
 
 ### 제네릭이 필요한 이유
@@ -153,3 +153,261 @@ string = Newjeans;
   - 로 타입(또는 원시 타입)을 사용하면 내부의 타입 매개변수가 `Object`로 사용된다.
   - 제네릭이 처음 등장했을 때, 과거 코드와의 호환을 위해 지원.
   - 지금은 사용하지 않아야한다!
+
+## 제네릭 - Generic2
+
+### 제네릭을 도입한 타입 매개변수의 제한과 실패
+제네릭을 도입해서 코드 재사용성을 늘리고, 타입 안전성 문제도 해결해보자
+
+```java
+import java.util.Random;
+
+public class AnimalHospital<T> {
+
+  private T animal;
+
+  public void set(T animal) {
+    this.animal = animal;
+  }
+
+  public void checkup() {
+    // T의 타입을 메서드를 정의하는 시점에는 알 수 없다. Object의 기능만 사용 가능하다.
+    animal.toString();
+    animal.equals(null);
+
+    // 컴파일 에러
+//      System.out.println("동물 이름: " + animal.getName());
+//        animal.sound();
+  }
+
+  public T getBigger(T target) {
+    // 컴파일 에러
+//    return animal.getSize() > target.getSize() ? animal : target;
+    return null;
+  }
+}
+```
+
+#### 문제
+- 제네릭에서 타입 매개변수를 사용하면 어떤 타입이든 들어올 수 있다.
+- 따라서 타입 매개변수를 어떤 타입이든 수용할 수 있는 `Object`로 가정하고, `Object`의 기능만 사용할 수 있다.
+
+만약 타입 인자가 모두 `Animal`과 그 자식만 들어올 수 있게 제한한다면 어떨까 ?
+
+```java
+public class AnimalHospital<T extends Animal> {
+    
+    private T animal;
+    
+    public void set(T animal) {
+        this.animal = animal;
+    }
+    
+    public void checkup() {
+      System.out.println("동물 이름: " + animal.getName());
+      System.out.println("동물 크기: " + animal.getSize());
+      animal.sound();
+    }
+    
+    public T getBigger(T target) {
+        return animal.getSize() > target.getSize() ? animal : target;
+    }
+}
+```
+
+- 타입 매개변수 `T`를 `Animal`과 그 자식만 받을 수 있도록 제한을 둔다.
+- 즉 `T`의 상한이 `Animal`이 되는 것이다.
+
+### 기존 문제와 해결
+#### 타입 안전성 문제
+- 개 병원에 고양이를 전달하는 문제가 발생한다. -> 해결
+- `Animal`타입을 반환하기 때문에 다운캐스팅을 해야한다. -> 해결
+- 실수로 고양이를 입력했는데, 개를 반환하는 상황이라면 캐스팅 예외가 발생한다. -> 해결
+
+#### 제네릭 도입 문제
+- 제네릭에서 타입 매개변수를 사용하면 어떤 타입이든 들어올 수 있다. -> 해결
+- 그리고 어떤 타입이든 수용할 수 있는 `Object`로 가정하고, `Object`의 기능만 사용할 수 있다. -> 해결
+  - 여기서는 `Animal`을 상한으로 두어서 `Animal`의 기능을 사용할 수 있다.
+
+### 제네릭 메서드
+제네릭 타입과 제네릭 메서드는 둘 다 제네릭을 사용하기는 하지만 서로 다른 기능을 제공한다.
+
+```java
+public class GenericMethod {
+    
+    public static Object objMethod(Object obj) {
+      System.out.println("object print: " + obj);
+      return obj;
+    }
+    
+    public static <T> T genericMethod(T t) {
+      System.out.println("generic print: " + t);
+      return t;
+    }
+    
+    public static <T extends Number> T numberMethod(T t) {
+      System.out.println("bound print: " + t);
+      return t;
+    }
+}
+```
+#### 제네릭 타입
+- 정의: `GenericClass<T>`
+- 타입 인자 전달: 객체를 생성하는 시점
+  - 예시. `new GenericClass<String>`
+#### 제네릭 메서드
+- 정의: `<T> T genericMethod(T t)`
+- 타입 인자 전달: 메서드를 호출하는 시점
+  - 예시. `GenericMethod.<Integer>genericMethod(10)`
+- 제네릭 메서드는 클래스 전체가 아니라 특정 메서드 단위로 제네릭을 도입할 때 사용한다.
+- 제네릭 메서드를 정의할 때는 메서드의 반환 타입 왼쪽에 다이아몬드를 사용해서 `<T>`와 같이 타입 매개변수를 적어준다.
+- 제네릭 메서드는 메서드를 실제 호출하는 시점에서 다이아몬드를 사용해서 `<Interger>`와 같이 타입을 정하고 호출한다.
+
+#### 인스턴스 메서드, static 메서드
+제네릭 메서드는 인스턴스 메서드와 static 메서드에 모두 적용할 수 있다.
+```java
+class Box<T> { // 제네릭 타입 
+     static <V> V staticMethod(V t) {} // static 메서드에 제네릭 메서드 도입
+     <Z> Z instanceMethod(Z z) {} // 인스턴스 메서드에 제네릭 메서드 도입 가능
+}
+```
+#### 참고
+제네릭 타입은 static 메서드에 타입 매개변수를 사용할 수 없다. 제네릭 타입은 객체를 생성하는 시점에 타입이 정해진다.
+그런데 static 메서드는 인스턴스 단위가 아니라 클래스 단위로 작동하기 때문에 제네릭 타입과는 무관하다.
+<br>
+따라서 static 메서드에 제네릭을 도입하려면 제네릭 메서드를 사용해야 한다.
+```java
+class Box<T> {
+    T instanceMethod(T t) {} // 가능
+    static T staticMethod(T t) {} // 제네릭 타입의 T 사용 불가능
+}
+```
+
+### 제네릭 메서드의 타입 매개변수 제한
+다음 코드는 타입 매개변수를 `Number`로 제한했다. 따라서 `Number`와 그 자식만 받을 수 있다.
+<br>
+참고로 `Integer`, `Double`, `Long`과 같은 숫자 타입이 `Number`의 자식이다.
+```java
+public static <T extends Number> T numberMethod(T t) {}
+```
+
+### 제네릭 메서드 타입 추론
+```java
+Integer i = 10; // Auto-Boxing
+Integer result = GenericMethod.<Integer>genericMethod(i);
+Integer result2 = GenericMethod.genericMethod(i);
+Integer integerValue2 = GenericMethod.genericMethod(20);
+Double doubleValue = GenericMethod.numberMethod(20.0);
+```
+
+### 와일드카드1
+제네릭 타입을 조금 더 편리하게 사용할 수 있는 와일드카드(wildcard)에 대해 알아보자.
+<br>
+참고로 와일드카드라는 뜻은 컴퓨터 프로그래밍에서 `*`,`?`와 같이 하나 이상의 문자들을 상징하는 특수 문자를 뜻한다.
+
+#### 참고!!!!
+와일드카드는 제네릭 타입이나 제네릭 메서드를 선언하는 것이 아니다. 와일드카드는 이미 만들어진 제네릭 타입을 활용할 때 사용한다.
+
+### 비제한 와일드카드
+```java
+// 이것은 제네릭 메서드이다.
+// Box<Dog> dogBox를 전달한다. 타입 추론에 의해 타입 T가 Dog가 된다.
+static <T> void printGenericV1(Box<T> box) {
+  System.out.println("T = " + box.get());
+}
+
+// 이것은 제네릭 메서드가 아니다. 일반적인 메서드이다.
+// Box<Dog> dogBox를 전달한다. 와일드카드 ?는 모든 타입을 받을 수 있다.
+static void printWildcardV1(Box<?> box) {
+  System.out.println("? = " + box.get());
+}
+```
+- 와일드카드인 `?`는 모든 타입을 다 받을 수 있다는 뜻이다.
+  - 다음과 같은 해석할 수 있다. `? == <? extends Object>`
+  - 이렇게 `?`만 사용해서 제한 없이 모든 타입을 다 받을 수 있는 와일드카드를 비제한 와일드카드라 한다.
+
+#### 제네릭 메서드 vs 와일드카드
+제네릭 타입이나 제네릭 메서드를 정의하는게 꼭 필요한 상황이 아니라면, 더 단순한 와일드카드 사용을 권장한다.
+
+### 와일드카드2
+### 상한 와일드카드
+```java
+static void printWildcard(Box<? extends Animal> box) {
+    Animal animal = box.get();
+  System.out.println("이름 = " + animal.getName());
+}
+```
+- `Animal`과 그 하위 타입만 입력 받는다. 만약 다른 타입을 입력하면 컴파일 오류가 발생한다.
+
+#### 타입 매개변수가 꼭 필요한 경우
+```java
+static <T extends Animal> T printAndReturnGeneric(Box<T> box) {
+    T t = box.get();
+    System.out.println("이름 = " + t.getName());
+    return t;
+}
+
+static Animal printAndReturnWildcard(Box<? extends Animal> box) {
+    Animal animal = box.get();
+    System.out.println("이름 = " + animal.getName());
+    return animal;
+}
+```
+`printAndReturnGeneric()`은 전달한 타입을 명확하게 반환할 수 있다.
+```java
+Dog dog = WildCardEx.printAndReturnGeneric(dogBox);
+```
+반면에 `printAndReturnWildcard()`는 전달한 타입을 명확하게 반환할 수 없다. 여기서는 `Animal`타입을 반환한다.
+```java
+Animal animal = WildcardEx.printAndReturnWildcard(dogBox);
+```
+
+### 하한 와일드카드
+```java
+Box<? super Animal> box
+```
+
+### 타입 이레이져
+제네릭은 자바 컴파일 단계에서만 사용되고, 컴파일 이후에는 제네릭 정보가 삭제된다. 제네릭에 사용한 타입 매개변수가 모두 사라지는 것이다.
+쉽게 이야기해서 컴파일 전인 `.java`에는 제네릭의 타입 매개변수가 존재하지만, 컴파일 이후인 자바 바이트코드 `.class`에는 타입 매개변수가 존재하지 않는 것이다.
+
+#### 대략적인 작동방식
+1. 제네릭 타입 선언
+2. 제네릭 타입에 `Integer` 타입 인자 전달
+3. 자바 컴파일러는 컴파일 시점에서 타입 매개변수를 타입 인자 형태로 바꿔서 이해한다.(예시. `T -> Integer`)
+4. (컴파일 후) 상한 제한없이 선언한 타입 매개변수 `T`는 `Object`로 변환된다.
+5. 값을 반환 받는 부분(`getter`)를 타입 인자로 지정한 `Integer`로 다운캐스팅 하는 코드를 추가한다.
+   1. 타입 매개변수를 `제한`하면 `제한한 타입`으로 코드를 변경한다.
+
+#### 타입 이레이저 방식의 한계
+컴파일 이후에는 제네릭 타입 정보가 존재하지 않는다. 
+`.class`로 자바를 실행하는 런타임에는 우리가 지정한 `Box<Integer>`, `Box<String>`의 타입 정보가 모두 제거된다.
+<br>
+따라서 런타임에 타입을 활용하는 다음과 같은 코드는 작성할 수 없다.
+```java
+class EraserBox<T> {
+    
+    public boolean instanceCheck(Object param) {
+        return param instanceof T; // 오류
+    }
+    
+    public void create() {
+        return new T(); // 오류
+    }
+}
+```
+```java
+class EraserBox {
+    
+    public boolean instanceCheck(Object param) {
+        return param instanceof Object; // 오류
+    }
+    
+    public void create() {
+        return new Object(); // 오류
+    }
+}
+```
+- `T`는 런타임에 모두 `Object`가 되어버린다.
+- `instanceof`는 `Object`와 비교하면서 항상 참이 반환되는 문제가 발생한다.
+- 개발자의 의도와는 다르게 `new T`는 항상 `new Object`가 되어버린다. 따라서 자바는 타입 매개변수에 `new`를 허용하지 않는다. 
