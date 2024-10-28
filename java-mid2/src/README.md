@@ -8,3 +8,6 @@ _[섹션 4] 컬렉션 프레임워크 - ArrayList_
 
 ### collection.link
 _[섹션 5] 컬렉션 프레임워크 - LinkedList_ 
+
+### collection.list
+_[섹션 6] 컬렉션 프레임워크 - List_ 
