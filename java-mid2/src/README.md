@@ -11,3 +11,6 @@ _[섹션 5] 컬렉션 프레임워크 - LinkedList_
 
 ### collection.list
 _[섹션 6] 컬렉션 프레임워크 - List_ 
+
+### collection.set
+_[섹션 7] 컬렉션 프레임워크 - 해시(Hash)_
