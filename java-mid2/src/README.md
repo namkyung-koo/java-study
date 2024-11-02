@@ -22,5 +22,8 @@ _[섹션 9] 컬렉션 프레임워크 - Set_
 ### collection.map, collection.deque
 _[섹션 10] 컬렉션 프레임워크 - Map, Stack, Queue_
 
+### collection.iterable, collection.compare, collection.utils
+_[섹션 11] 컬렉션 프레임워크 - 순회, 정렬, 전체 정리_
+
 
 
